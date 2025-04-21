@@ -1,10 +1,15 @@
 import pygame
 import sys
+# import random
 
 
 class Player():
     def __init__(self, x, y):
         self.player = pygame.rect.Rect(x, y, 100, 100)
+        self.x1 = x
+        self.y1 = y
+        self.x2 = x + 100
+        self.y2 = y + 100
         self.speed = 8
         self.inventory = []
     
@@ -14,34 +19,32 @@ class Player():
         block = pygame.rect.Rect(405, 710, 70, 70)
         for x in range(5):
             pygame.draw.rect(screen, (0, 0, 0), block)
+            if x < len(self.inventory):
+                pygame.draw.circle(screen, self.inventory[x].color, block.center, 17.5)
             block = block.move(80, 0)
-
-    def update(self):
-        pygame.draw.rect(screen, (255, 0, 0), self.player)
 
     def collision(self, news, object):
         res = ["not", "not"]
-        y1, x1 = self.player.y, self.player.x
-        y2, x2 = y1 + self.player.height, x1 + self.player.width
-        if not (y2 <= object.obj.y or y1 >= object.obj.y + object.obj.height):
+        if not (self.y2 <= object.obj.y or self.y1 >= object.obj.y + object.obj.height):
             if object.obj.x <= news[0] <= object.obj.x + object.obj.width:
                 res[0] = "left"
             elif object.obj.x <= news[2] <= object.obj.x + object.obj.width:
                 res[0] = "right"
-        if not (x1 >= object.obj.x + object.obj.width or x2 <= object.obj.x):
+        if not (self.x1 >= object.obj.x + object.obj.width or self.x2 <= object.obj.x):
             if object.obj.y <= news[1] <= object.obj.y + object.obj.height:
                 res[1] = "down"
             elif object.obj.y <= news[3] <= object.obj.y + object.obj.height:
                 res[1] = "up"
         return res
     
+    def collect_item(self, item):
+        self.inventory += [item]
+    
     def move(self, motion, objects):
-        x1, y1 = self.player.x, self.player.y
-        x2, y2 = self.player.x + self.player.height, self.player.y + self.player.width
-        new_x1, new_x2 = x1 + motion[0] * self.speed, x2 + motion[0] * self.speed
-        new_y1, new_y2 = y1 + motion[1] * self.speed, y2 + motion[1] * self.speed
+        new_x1, new_x2 = self.x1 + motion[0] * self.speed, self.x2 + motion[0] * self.speed
+        new_y1, new_y2 = self.y1 + motion[1] * self.speed, self.y2 + motion[1] * self.speed
         for obj in objects:
-            if not obj.passive:
+            if obj.type == "Wall":
                 res = self.collision([new_x1, new_y1, new_x2, new_y2], obj)
                 if res[0] == "left":
                     new_x1 = obj.obj.x + obj.obj.width + 1
@@ -56,26 +59,46 @@ class Player():
                     new_y2 = obj.obj.y
                     new_y1 = new_y2 - 100
         self.player = pygame.rect.Rect(new_x1, new_y1, 100, 100)
+        self.x1, self.y1 = new_x1, new_y1
+        self.x2, self.y2 = new_x1 + 100, new_y1 + 100
+
+    def update(self):
+        pygame.draw.rect(screen, (255, 0, 0), self.player)
                 
 
 class Object():
-    def __init__(self, color, x, y, width, height, passive=True):
+    def __init__(self, color, x, y, width, height):
         self.obj = pygame.rect.Rect(x, y, width, height)
         self.color = color
-        self.passive = passive
+        self.type = "Object"
 
     def update(self):
         pygame.draw.rect(screen, self.color, self.obj)
-        
+
+class Wall(Object):
+    def __init__(self, color, x, y, width, height):
+        super().__init__(color, x, y, width, height)
+        self.type = "Wall"
+
+class Item(Object):
+    def __init__(self, color, x, y, info):
+        super().__init__(color, x, y, 100, 100)
+        self.type = "Item"
+        self.info = info
+    
+    def update(self):
+        pygame.draw.circle(screen, self.color, self.obj.center, 5)
 
 pygame.init()
 
 screen = pygame.display.set_mode((1200, 800))
 player = Player(550, 350)
 start = Object((0,  255, 0), 400, 200, 400, 400)
-wall1 = Object((0, 0, 255), 100, 30, 20, 400, False)
-wall2 = Object((0, 0, 255), 0, 250, 200, 30, False)
+wall1 = Wall((0, 0, 255), 100, 30, 20, 400)
+wall2 = Wall((0, 0, 255), 0, 250, 200, 30)
 objects = [start, wall1, wall2]
+# items = [Item((random.randint(100, 255), random.randint(100, 255), random.randint(100, 255)), random.randint(0, 1100), random.randint(0, 700), "1") for q in range(random.randint(5, 7))]
+items = [Item((0, 255, 255), 1000, 150, "1")]
 clock = pygame.time.Clock()
 actons = {pygame.K_w: [1, -1], pygame.K_s: [1, 1], pygame.K_UP: [1, -1], pygame.K_DOWN: [1, 1],
           pygame.K_a: [0, -1], pygame.K_d: [0, 1], pygame.K_LEFT: [0, -1], pygame.K_RIGHT: [0, 1]}
@@ -90,6 +113,15 @@ while True:
             motion[actons[event.key][0]] -= actons[event.key][1]
         if event.type == pygame.KEYDOWN and event.key == pygame.K_e:
             f = not f
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_f:
+            new_items = []
+            for i in range(len(items)):
+                if player.collision([player.x1, player.y1, player.x2, player.y2], items[i]) != ["not", "not"] and \
+                    len(player.inventory) < 5:
+                    player.collect_item(itm)
+                else:
+                    new_items.append(items[i])
+            items = new_items
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
@@ -97,6 +129,8 @@ while True:
     player.move(motion, objects)
     for obj in objects:
         obj.update()
+    for itm in items:
+        itm.update()
     player.update()
     if f:
         player.show_inventory()
