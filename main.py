@@ -6,6 +6,15 @@ class Player():
     def __init__(self, x, y):
         self.player = pygame.rect.Rect(x, y, 100, 100)
         self.speed = 8
+        self.inventory = []
+    
+    def show_inventory(self):
+        inv = pygame.rect.Rect(395, 700, 410, 90)
+        pygame.draw.rect(screen, (255, 255, 0), inv)
+        block = pygame.rect.Rect(405, 710, 70, 70)
+        for x in range(5):
+            pygame.draw.rect(screen, (0, 0, 0), block)
+            block = block.move(80, 0)
 
     def update(self):
         pygame.draw.rect(screen, (255, 0, 0), self.player)
@@ -54,7 +63,7 @@ class Object():
         self.obj = pygame.rect.Rect(x, y, width, height)
         self.color = color
         self.passive = passive
-        
+
     def update(self):
         pygame.draw.rect(screen, self.color, self.obj)
         
@@ -63,13 +72,15 @@ pygame.init()
 
 screen = pygame.display.set_mode((1200, 800))
 player = Player(550, 350)
-start = Object((0, 255, 0), 400, 200, 400, 400)
+start = Object((0,  255, 0), 400, 200, 400, 400)
 wall1 = Object((0, 0, 255), 100, 30, 20, 400, False)
 wall2 = Object((0, 0, 255), 0, 250, 200, 30, False)
 objects = [start, wall1, wall2]
 clock = pygame.time.Clock()
-actons = {pygame.K_w: [1, -1], pygame.K_s: [1, 1], pygame.K_a: [0, -1], pygame.K_d: [0, 1]}
+actons = {pygame.K_w: [1, -1], pygame.K_s: [1, 1], pygame.K_UP: [1, -1], pygame.K_DOWN: [1, 1],
+          pygame.K_a: [0, -1], pygame.K_d: [0, 1], pygame.K_LEFT: [0, -1], pygame.K_RIGHT: [0, 1]}
 motion = [0, 0]
+f = False
 
 while True:
     for event in pygame.event.get():
@@ -77,6 +88,8 @@ while True:
             motion[actons[event.key][0]] += actons[event.key][1]
         if event.type == pygame.KEYUP and event.key in actons:
             motion[actons[event.key][0]] -= actons[event.key][1]
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_e:
+            f = not f
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
@@ -85,5 +98,7 @@ while True:
     for obj in objects:
         obj.update()
     player.update()
+    if f:
+        player.show_inventory()
     pygame.display.update()
     clock.tick(60)
