@@ -19,13 +19,13 @@ class Player():
                 pygame.draw.circle(self.screen, self.inventory[x].color, block.center, 17.5)
             block = block.move(80, 0)
 
-    def collision(self, news, object):
+    def collision(self, news, object): # с какой стороны объекта пересекаем
         res = ["not", "not"]
         if not (self.y2 <= object.obj.y or self.y1 >= object.obj.y + object.obj.height):
             if object.obj.x <= news[0] <= object.obj.x + object.obj.width:
-                res[0] = "left"
-            elif object.obj.x <= news[2] <= object.obj.x + object.obj.width:
                 res[0] = "right"
+            elif object.obj.x <= news[2] <= object.obj.x + object.obj.width:
+                res[0] = "left"
         if not (self.x1 >= object.obj.x + object.obj.width or self.x2 <= object.obj.x):
             if object.obj.y <= news[1] <= object.obj.y + object.obj.height:
                 res[1] = "down"
@@ -36,31 +36,51 @@ class Player():
     def collect_item(self, item):
         self.inventory += [item]
     
-    def move(self, motion, objects):
-        new_x1, new_x2 = self.x1 + motion[0] * self.speed, self.x2 + motion[0] * self.speed
-        new_y1, new_y2 = self.y1 + motion[1] * self.speed, self.y2 + motion[1] * self.speed
-        for obj in objects:
-            if obj.type == "Wall":
-                res = self.collision([new_x1, new_y1, new_x2, new_y2], obj)
-                if res[0] == "left":
-                    new_x1 = obj.obj.x + obj.obj.width + 1
-                    new_x2 = new_x1 + 100
-                elif res[0] == "right":
-                    new_x2 = obj.obj.x
-                    new_x1 = new_x2 - 100
-                if res[1] == "down":
-                    new_y1 = obj.obj.y + obj.obj.height + 1
-                    new_y2 = new_y1 + 100
-                elif res[1] == "up":
-                    new_y2 = obj.obj.y
-                    new_y1 = new_y2 - 100
-        self.player = pygame.rect.Rect(new_x1, new_y1, 100, 100)
-        self.x1, self.y1 = new_x1, new_y1
-        self.x2, self.y2 = new_x1 + 100, new_y1 + 100
-
     def update(self):
         pygame.draw.rect(self.screen, (255, 0, 0), self.player)
-                
+
+
+class Camera():
+    def __init__(self, player, objects):
+        self.pl = player
+        self.objs = objects
+    
+    def move_objects(self, motion):
+        impossible_move = set()
+        l, r, d, u = self.pl.speed + 2, self.pl.speed + 2, self.pl.speed + 2, self.pl.speed + 2
+        action = [-motion[0] * self.pl.speed, -motion[1] * self.pl.speed]
+        new_x1, new_y1 = self.pl.x1 + motion[0] * self.pl.speed, self.pl.y1 + motion[1] * self.pl.speed
+        new_x2, new_y2 = new_x1 + self.pl.player.w, new_y1 + self.pl.player.h
+        for obj in self.objs:
+            if obj.type == "Wall":
+                ways = self.pl.collision([new_x1, new_y1, new_x2, new_y2], obj)
+                if ways[0] == "left":
+                    l = min(l, new_x2 - obj.obj.x)
+                elif ways[0] == "right":
+                    r = min(r, obj.obj.x + obj.obj.w - new_x1)
+                if ways[1] == "down":
+                    d = min(d, obj.obj.y + obj.obj.h - new_y1)
+                elif ways[1] == "up":
+                    u = min(u, new_y2 - obj.obj.y)
+                impossible_move.add(ways[0])
+                impossible_move.add(ways[1])
+        if "left" in impossible_move:
+            action[0] += l
+        elif "right" in impossible_move:
+            action[0] -= r
+        if "down" in impossible_move:
+            action[1] -= d
+        elif "up" in impossible_move:
+            action[1] += u
+        for obj in self.objs:
+            obj.move(action)
+            
+    
+    def update(self, objs):
+        self.objs = objs
+        for el in self.objs:
+            el.update()
+
 
 class Object():
     def __init__(self, screen, color, x, y, width, height):
@@ -68,6 +88,14 @@ class Object():
         self.color = color
         self.screen = screen
         self.type = "Object"
+    
+    def move(self, motion):
+        self.obj = pygame.rect.Rect(self.obj.x + motion[0], self.obj.y + motion[1], self.obj.w, self.obj.h)
+
+    def move_partly(self, ways):
+        l, r, d, u = ways
+        dif1, dif2 = r - l, d - u
+        self.obj = pygame.rect.Rect(self.obj.x + dif1, self.obj.y + dif2, self.obj.w, self.obj.h)
 
     def update(self):
         pygame.draw.rect(self.screen, self.color, self.obj)

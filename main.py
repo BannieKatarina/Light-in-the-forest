@@ -1,6 +1,6 @@
 import pygame
 import sys
-from classes import Player, Object, Wall, Item
+from classes import Player, Camera, Object, Wall, Item
 # import random
 
 pygame.init()
@@ -11,8 +11,9 @@ start = Object(screen, (0,  255, 0), 400, 200, 400, 400)
 wall1 = Wall(screen, (0, 0, 255), 100, 30, 20, 400)
 wall2 = Wall(screen, (0, 0, 255), 0, 250, 200, 30)
 objects = [start, wall1, wall2]
-# items = [Item(screen, (random.randint(100, 255), random.randint(100, 255), random.randint(100, 255)), random.randint(0, 1100), random.randint(0, 700), "1") for q in range(random.randint(5, 7))]
 items = [Item(screen, (0, 255, 255), 1000, 150, "1")]
+# items = [Item(screen, (random.randint(100, 255), random.randint(100, 255), random.randint(100, 255)), random.randint(0, 1100), random.randint(0, 700), "1") for q in range(random.randint(5, 7))]
+cam = Camera(player, objects + items)
 clock = pygame.time.Clock()
 actons = {pygame.K_w: [1, -1], pygame.K_s: [1, 1], pygame.K_UP: [1, -1], pygame.K_DOWN: [1, 1],
           pygame.K_a: [0, -1], pygame.K_d: [0, 1], pygame.K_LEFT: [0, -1], pygame.K_RIGHT: [0, 1]}
@@ -32,7 +33,7 @@ while True:
             for i in range(len(items)):
                 if player.collision([player.x1, player.y1, player.x2, player.y2], items[i]) != ["not", "not"] and \
                     len(player.inventory) < 5:
-                    player.collect_item(itm)
+                    player.collect_item(items[i])
                 else:
                     new_items.append(items[i])
             items = new_items
@@ -40,11 +41,8 @@ while True:
             pygame.quit()
             sys.exit()
     screen.fill((0, 35, 30))
-    player.move(motion, objects)
-    for obj in objects:
-        obj.update()
-    for itm in items:
-        itm.update()
+    cam.move_objects(motion)
+    cam.update(objects + items)
     player.update()
     if f:
         player.show_inventory()
