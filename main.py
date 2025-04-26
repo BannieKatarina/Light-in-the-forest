@@ -31,8 +31,7 @@ while True:
         if event.type == pygame.KEYDOWN and event.key == pygame.K_f:
             new_items = []
             for i in range(len(items)):
-                if player.collision([player.x1, player.y1, player.x2, player.y2], items[i]) != ["not", "not"] and \
-                    len(player.inventory) < 5:
+                if items[i].pick_up and len(player.inventory) < 5:
                     player.collect_item(items[i])
                 else:
                     new_items.append(items[i])
@@ -43,6 +42,8 @@ while True:
     screen.fill((0, 35, 30))
     cam.move_objects(motion)
     cam.update(objects + items)
+    for itm in items:
+        itm.check_pick_up(player)
     player.update()
     if f:
         player.show_inventory()

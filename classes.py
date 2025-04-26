@@ -92,11 +92,6 @@ class Object():
     def move(self, motion):
         self.obj = pygame.rect.Rect(self.obj.x + motion[0], self.obj.y + motion[1], self.obj.w, self.obj.h)
 
-    def move_partly(self, ways):
-        l, r, d, u = ways
-        dif1, dif2 = r - l, d - u
-        self.obj = pygame.rect.Rect(self.obj.x + dif1, self.obj.y + dif2, self.obj.w, self.obj.h)
-
     def update(self):
         pygame.draw.rect(self.screen, self.color, self.obj)
 
@@ -110,6 +105,15 @@ class Item(Object):
         super().__init__(screen, color, x, y, 100, 100)
         self.type = "Item"
         self.info = info
+        self.pick_up = False
+    
+    def check_pick_up(self, pl):
+        if pl.collision([pl.x1, pl.y1, pl.x2, pl.y2], self) != ["not", "not"]:
+            self.pick_up = True
+        else:
+            self.pick_up = False
     
     def update(self):
+        if self.pick_up:
+            pygame.draw.circle(self.screen, (255, 0, 0), self.obj.center, 8)    
         pygame.draw.circle(self.screen, self.color, self.obj.center, 5)
