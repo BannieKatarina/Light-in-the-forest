@@ -1,6 +1,6 @@
 import pygame
 import sys
-from classes import Player, Camera, Object, Wall, Item
+from classes import Player, Camera, Object, Wall, Item, Light_bar
 # import random
 
 pygame.init()
@@ -14,6 +14,7 @@ objects = [start, wall1, wall2]
 items = [Item(screen, (0, 255, 255), 1000, 150, "1")]
 # items = [Item(screen, (random.randint(100, 255), random.randint(100, 255), random.randint(100, 255)), random.randint(0, 1100), random.randint(0, 700), "1") for q in range(random.randint(5, 7))]
 cam = Camera(player, objects + items)
+health = Light_bar(screen)
 clock = pygame.time.Clock()
 actons = {pygame.K_w: [1, -1], pygame.K_s: [1, 1], pygame.K_UP: [1, -1], pygame.K_DOWN: [1, 1],
           pygame.K_a: [0, -1], pygame.K_d: [0, 1], pygame.K_LEFT: [0, -1], pygame.K_RIGHT: [0, 1]}
@@ -39,6 +40,9 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
+    if health.leight <= 0:
+        pygame.quit()
+        sys.exit()
     screen.fill((0, 35, 30))
     cam.move_objects(motion)
     cam.update(objects + items)
@@ -47,5 +51,6 @@ while True:
     player.update()
     if f:
         player.show_inventory()
+    health.update()
     pygame.display.update()
     clock.tick(60)

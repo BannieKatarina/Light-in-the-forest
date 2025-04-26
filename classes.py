@@ -117,3 +117,21 @@ class Item(Object):
         if self.pick_up:
             pygame.draw.circle(self.screen, (255, 0, 0), self.obj.center, 8)    
         pygame.draw.circle(self.screen, self.color, self.obj.center, 5)
+
+
+class Light_bar():
+    def __init__(self, screen):
+        self.screen = screen
+        self.leight = 100
+        self.cnt = 0
+        self.box = pygame.rect.Rect(7, 7, self.leight * 2.5 + 6, 37)
+        self.bar = pygame.rect.Rect(10, 10, self.leight * 2.5, 30)
+    
+    def update(self):
+        self.cnt += 1
+        if self.cnt % 120 == 0:
+            self.leight -= 5
+            self.bar = pygame.rect.Rect(10, 10, self.leight * 2.5, 30)
+            self.cnt = 0
+        pygame.draw.rect(self.screen, (255, 0, 0), self.box)
+        pygame.draw.rect(self.screen, (255, 184, 65), self.bar)
