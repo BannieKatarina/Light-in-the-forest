@@ -1,6 +1,6 @@
 import pygame
 import sys
-from classes import Player, Camera, Object, Wall, Item, Light_bar
+from classes import Player, Camera, Object, Wall, Item, Interface, Branch
 # import random
 
 pygame.init()
@@ -11,10 +11,10 @@ start = Object(screen, (0,  255, 0), 400, 200, 400, 400)
 wall1 = Wall(screen, (0, 0, 255), 100, 30, 20, 400)
 wall2 = Wall(screen, (0, 0, 255), 0, 250, 200, 30)
 objects = [start, wall1, wall2]
-items = [Item(screen, (0, 255, 255), 1000, 150, "1")]
+items = [Item(screen, (0, 255, 255), 1000, 150), Branch(screen, 750, 570)]
 # items = [Item(screen, (random.randint(100, 255), random.randint(100, 255), random.randint(100, 255)), random.randint(0, 1100), random.randint(0, 700), "1") for q in range(random.randint(5, 7))]
 cam = Camera(player, objects + items)
-health = Light_bar(screen)
+health = Interface(screen, player)
 clock = pygame.time.Clock()
 actons = {pygame.K_w: [1, -1], pygame.K_s: [1, 1], pygame.K_UP: [1, -1], pygame.K_DOWN: [1, 1],
           pygame.K_a: [0, -1], pygame.K_d: [0, 1], pygame.K_LEFT: [0, -1], pygame.K_RIGHT: [0, 1]}

@@ -7,6 +7,7 @@ class Player():
         self.x2, self.y2 = x + 100, y + 100
         self.screen = screen
         self.speed = 8
+        self.branches = 0
         self.inventory = []
     
     def show_inventory(self):
@@ -34,7 +35,10 @@ class Player():
         return res
     
     def collect_item(self, item):
-        self.inventory += [item]
+        if item.type == "Branch":
+            self.branches += 1
+        else:
+            self.inventory += [item]
     
     def update(self):
         pygame.draw.rect(self.screen, (255, 0, 0), self.player)
@@ -101,10 +105,9 @@ class Wall(Object):
         self.type = "Wall"
 
 class Item(Object):
-    def __init__(self, screen, color, x, y, info):
+    def __init__(self, screen, color, x, y):
         super().__init__(screen, color, x, y, 100, 100)
         self.type = "Item"
-        self.info = info
         self.pick_up = False
     
     def check_pick_up(self, pl):
@@ -118,16 +121,27 @@ class Item(Object):
             pygame.draw.circle(self.screen, (255, 0, 0), self.obj.center, 8)    
         pygame.draw.circle(self.screen, self.color, self.obj.center, 5)
 
+class Branch(Item):
+    def __init__(self, screen, x, y):
+        super().__init__(screen, (139, 69, 19), x, y)
+        self.type = "Branch"
 
-class Light_bar():
-    def __init__(self, screen):
+class Interface():
+    def __init__(self, screen, player):
         self.screen = screen
+        self.pl = player
         self.leight = 100
         self.cnt = 0
+        self.branch_box = pygame.rect.Rect(7, 50, 40, 40)
         self.box = pygame.rect.Rect(7, 7, self.leight * 2.5 + 6, 37)
         self.bar = pygame.rect.Rect(10, 10, self.leight * 2.5, 30)
-    
+
     def update(self):
+        pygame.draw.rect(self.screen, (255, 0, 0), self.branch_box, 3)
+        pygame.draw.circle(self.screen, (139, 69, 19), self.branch_box.center, 7)
+        font = pygame.font.SysFont("Comic Sans", 14)
+        text = font.render(str(self.pl.branches), 0, (255, 255, 255))
+        self.screen.blit(text, [34, 68])
         self.cnt += 1
         if self.cnt % 120 == 0:
             self.leight -= 5
