@@ -149,3 +149,9 @@ class Interface():
             self.cnt = 0
         pygame.draw.rect(self.screen, (255, 0, 0), self.box)
         pygame.draw.rect(self.screen, (255, 184, 65), self.bar)
+    
+    def use_branch(self):
+        if self.pl.branches:
+            self.leight = min(105, self.leight + 25)
+            self.pl.branches -= 1
+            self.update()

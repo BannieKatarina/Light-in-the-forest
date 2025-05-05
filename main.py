@@ -27,6 +27,8 @@ while True:
             motion[actons[event.key][0]] += actons[event.key][1]
         if event.type == pygame.KEYUP and event.key in actons:
             motion[actons[event.key][0]] -= actons[event.key][1]
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_q:
+            health.use_branch()
         if event.type == pygame.KEYDOWN and event.key == pygame.K_e:
             f = not f
         if event.type == pygame.KEYDOWN and event.key == pygame.K_f:
