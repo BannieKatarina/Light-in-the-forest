@@ -3,17 +3,24 @@ import sys
 from classes import Player, Camera, Object, Wall, Item, Interface, Branch
 # import random
 
+def create_map():
+    img = pygame.image.load("data/Labyrint.jpg")
+    w, h = img.get_size()
+    map = pygame.transform.scale(img, (w * 6, h * 6))
+    map_object = Object(screen, map, -415 * 6, -150 * 6, w * 6, h * 6)
+    return map_object
 pygame.init()
 
 screen = pygame.display.set_mode((1200, 900))
 player = Player(screen, 550, 350)
 start = Object(screen, (0,  255, 0), 400, 200, 400, 400)
-wall1 = Wall(screen, (0, 0, 255), 100, 30, 20, 400)
-wall2 = Wall(screen, (0, 0, 255), 0, 250, 200, 30)
-objects = [start, wall1, wall2]
+# wall1 = Wall(screen, (0, 0, 255), 100, 30, 20, 400)
+# wall2 = Wall(screen, (0, 0, 255), 0, 250, 200, 30)
+# objects = [start, wall1, wall2]
 items = [Item(screen, (0, 255, 255), 1000, 150), Branch(screen, 750, 570)]
 # items = [Item(screen, (random.randint(100, 255), random.randint(100, 255), random.randint(100, 255)), random.randint(0, 1100), random.randint(0, 700), "1") for q in range(random.randint(5, 7))]
-cam = Camera(player, objects + items)
+map = create_map()
+cam = Camera(player, [map, start])
 health = Interface(screen, player)
 clock = pygame.time.Clock()
 actons = {pygame.K_w: [1, -1], pygame.K_s: [1, 1], pygame.K_UP: [1, -1], pygame.K_DOWN: [1, 1],
@@ -47,7 +54,7 @@ while True:
         sys.exit()
     screen.fill((0, 35, 30))
     cam.move_objects(motion)
-    cam.update(objects + items)
+    cam.update([map, start])
     for itm in items:
         itm.check_pick_up(player)
     player.update()

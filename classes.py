@@ -97,7 +97,10 @@ class Object():
         self.obj = pygame.rect.Rect(self.obj.x + motion[0], self.obj.y + motion[1], self.obj.w, self.obj.h)
 
     def update(self):
-        pygame.draw.rect(self.screen, self.color, self.obj)
+        try:
+            self.screen.blit(self.color, self.obj)
+        except TypeError:
+            pygame.draw.rect(self.screen, self.color, self.obj)
 
 class Wall(Object):
     def __init__(self, screen, color, x, y, width, height):
