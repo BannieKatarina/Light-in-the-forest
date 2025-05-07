@@ -5,7 +5,7 @@ from classes import Player, Camera, Object, Wall, Item, Interface, Branch
 
 pygame.init()
 
-screen = pygame.display.set_mode((1200, 800))
+screen = pygame.display.set_mode((1200, 900))
 player = Player(screen, 550, 350)
 start = Object(screen, (0,  255, 0), 400, 200, 400, 400)
 wall1 = Wall(screen, (0, 0, 255), 100, 30, 20, 400)

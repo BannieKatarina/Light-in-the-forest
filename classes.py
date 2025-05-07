@@ -2,9 +2,9 @@ import pygame
 
 class Player():
     def __init__(self, screen, x, y):
-        self.player = pygame.rect.Rect(x, y, 100, 100)
+        self.player = pygame.rect.Rect(x, y, 20, 20)
         self.x1, self.y1 = x, y
-        self.x2, self.y2 = x + 100, y + 100
+        self.x2, self.y2 = x + 20, y + 20
         self.screen = screen
         self.speed = 8
         self.branches = 0
