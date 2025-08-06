@@ -2,11 +2,11 @@ import pygame
 
 class Player():
     def __init__(self, screen, x, y):
-        self.player = pygame.rect.Rect(x, y, 70, 70)
+        self.player = pygame.rect.Rect(x, y, 60, 60)
         self.x1, self.y1 = x, y
-        self.x2, self.y2 = x + 20, y + 20
+        self.x2, self.y2 = x + 60, y + 60
         self.screen = screen
-        self.speed = 8
+        self.speed = 5
         self.branches = 0
         self.inventory = []
     
@@ -41,7 +41,7 @@ class Player():
             self.inventory += [item]
     
     def update(self):
-        pygame.draw.rect(self.screen, (0, 0, 0), self.player)
+        pygame.draw.rect(self.screen, (255, 0, 0), self.player)
 
 
 class Camera():
